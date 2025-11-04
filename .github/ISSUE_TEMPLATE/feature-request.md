@@ -7,8 +7,8 @@ assignees: ''
 
 ---
 
-**Description**
+### Description
 feature description
 
-**Additional resources**
-helpful links here
+ <!-- **Additional resources**
+helpful links here -->
