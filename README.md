@@ -10,10 +10,10 @@ TBA
 TBA
 
 ## 👤 Authors
-| <img src="TBA" width="48"> | <img src="TBA" width="48"> | <img src="TBA" width="48">  |
+| <img src="TBA" width="48"> | <img src="TBA" width="48"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
 | ------------- | ------------- | ------------- |
 | Mihon Corina  | Nedelcu Andreea  | Nedelcu Ioana  |
-| roles TBA  | roles TBA  | roles TBA |
+| _roles TBA_  | _roles TBA_  | _roles TBA_ |
 
 ## 📜 License
 TBA
