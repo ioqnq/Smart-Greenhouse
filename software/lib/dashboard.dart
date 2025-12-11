@@ -52,6 +52,16 @@ class ProductTile extends StatelessWidget {
             style: const TextStyle(color: Colors.white, fontSize: 20),
             textAlign: TextAlign.center,
           ),
+          Text(
+            amount,
+            style: const TextStyle(color: Colors.white, fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            status,
+            style: const TextStyle(color: Colors.white, fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
