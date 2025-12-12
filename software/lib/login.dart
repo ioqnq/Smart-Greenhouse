@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'navigation.dart';
 import 'register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'constants/colors.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -24,7 +25,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      backgroundColor: AppColors.primaryLight, 
+      appBar: AppBar(
+        title: const Text('Login'),
+        backgroundColor: AppColors.primary,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -43,6 +48,10 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 24),
 
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryDark,     
+              foregroundColor: AppColors.textLight,    
+              ),
               onPressed: () async {
                 try {
                   await FirebaseAuth.instance.signInWithEmailAndPassword(

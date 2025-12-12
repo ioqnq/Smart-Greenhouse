@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dashboard.dart';
 import 'settings.dart';
+import 'constants/colors.dart';
 
 class NavigationExample extends StatefulWidget {
   const NavigationExample({super.key});
@@ -15,15 +16,17 @@ class _NavigationExampleState extends State<NavigationExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primaryLight, 
       appBar: AppBar(
         title: Text(
           currentPageIndex == 0 ? 'Dashboard' : 'Configure',
         ),
-        backgroundColor: const Color.fromARGB(255, 0, 170, 170),
+        backgroundColor: AppColors.primary, 
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
-        indicatorColor: const Color.fromARGB(200, 0, 170, 170),
+        indicatorColor: AppColors.primary,
+        backgroundColor: AppColors.primaryDark,
         onDestinationSelected: (int index) {
           setState(() {
             currentPageIndex = index;
@@ -38,12 +41,11 @@ class _NavigationExampleState extends State<NavigationExample> {
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
-            label: 'Config',
+            label: 'Configure',
           ),
         ],
       ),
 
-      // ✅ exact ca înainte
       body: [
         const Dashboard(),
         const Settings(),

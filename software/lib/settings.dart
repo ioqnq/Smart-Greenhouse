@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
+import 'constants/colors.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -7,6 +8,7 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primaryLight,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -14,6 +16,9 @@ class Settings extends StatelessWidget {
 
             // 🔧 Modify profile
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
               onPressed: () {
                 // aici deschizi pagina de edit profil
               },
@@ -24,7 +29,7 @@ class Settings extends StatelessWidget {
 
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.primary,
               ),
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -41,35 +46,3 @@ class Settings extends StatelessWidget {
     );
   }
 }
-
-
-
-// class Settings extends StatelessWidget {
-//   const Settings({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           ElevatedButton(
-//             style: ElevatedButton.styleFrom(
-//               backgroundColor: const Color.fromARGB(255, 0, 170, 170),
-//             ),
-//             onPressed: () {},
-//             child: const Text('Log In'),
-//           ),
-//           const SizedBox(height: 16),
-//           ElevatedButton(
-//             style: ElevatedButton.styleFrom(
-//               backgroundColor: const Color.fromARGB(255, 0, 170, 170),
-//             ),
-//             onPressed: () {},
-//             child: const Text('Registration'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

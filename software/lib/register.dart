@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'constants/colors.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -23,7 +24,11 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      backgroundColor: AppColors.primaryLight, 
+      appBar: AppBar(
+        title: const Text('Register'),
+        backgroundColor: AppColors.primary,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -42,6 +47,10 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 24),
 
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryDark,     
+              foregroundColor: AppColors.textLight,    
+              ),
               onPressed: () async {
                 try {
                   await FirebaseAuth.instance
