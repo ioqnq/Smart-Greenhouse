@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-
+import 'constants/colors.dart';
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Column( 
       children: [
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('Dashboard', style: TextStyle(fontSize: 24)),
-        ),
+        // const Padding(
+        //   padding: EdgeInsets.all(16.0),
+        //   child: Text('Dashboard', style: TextStyle(fontSize: 24)),
+        // ),
         Expanded(
           child: GridView.extent(
             padding: const EdgeInsets.all(16),
@@ -18,8 +18,8 @@ class Dashboard extends StatelessWidget {
             crossAxisSpacing: 20,
             mainAxisSpacing: 20,
             children: const [
-              ProductTile(name: 'Temperature', color: Colors.pink, amount:'28C', status: 'Good'),
-              ProductTile(name: 'Humidity', color: Colors.orange, amount:'30%', status: 'Insufficient'),
+              ProductTile(name: 'Temperature', color: AppColors.temperature, amount:'28C', status: 'Good'),
+              ProductTile(name: 'Humidity', color: AppColors.humidity, amount:'30%', status: 'Insufficient'),
             ],
           ),
         ),
@@ -49,6 +49,16 @@ class ProductTile extends StatelessWidget {
         children: <Widget>[
           Text(
             name,
+            style: const TextStyle(color: Colors.white, fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            amount,
+            style: const TextStyle(color: Colors.white, fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            status,
             style: const TextStyle(color: Colors.white, fontSize: 20),
             textAlign: TextAlign.center,
           ),
