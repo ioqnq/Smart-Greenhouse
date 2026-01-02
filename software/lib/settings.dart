@@ -22,7 +22,12 @@ class Settings extends StatelessWidget {
               onPressed: () {
                 // aici deschizi pagina de edit profil
               },
-              child: const Text('Edit profile'),
+              child: const Text('Edit profile', style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: AppColors.textDark,
+                  ),
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -38,7 +43,11 @@ class Settings extends StatelessWidget {
                   (route) => false,
                 );
               },
-              child: const Text('Logout'),
+              child: const Text('Logout', style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: AppColors.textDark,
+                  )),
             ),
           ],
         ),

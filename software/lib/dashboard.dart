@@ -238,11 +238,11 @@ class StatusTile extends StatelessWidget {
   Color get statusColor {
     switch (status.toLowerCase()) {
       case 'good':
-        return Colors.green;
+        return AppColors.success;
       case 'insufficient':
-        return Colors.red;
+        return AppColors.danger;
       case 'warning':
-        return Colors.orange;
+        return AppColors.warning;
       default:
         return Colors.grey;
     }
@@ -251,7 +251,7 @@ class StatusTile extends StatelessWidget {
   Color get autoColor {
     switch (auto.toLowerCase()) {
       case 'on':
-        return Colors.red;
+        return AppColors.danger;
       case 'off':
         return Colors.grey;
       default:
