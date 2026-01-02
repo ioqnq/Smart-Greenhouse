@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 /// Paleta oficială Smart Greenhouse
 class AppColors {
   // Brand / Primary colors
-  static const Color primary = Color.fromARGB(255, 138, 245, 88);
-  static const Color primaryDark = Color.fromARGB(255, 72, 183, 25);
+  // static const Color primary = Color.fromARGB(255, 138, 245, 88);
+  // static const Color primaryDark = Color.fromARGB(255, 72, 183, 25);
+  static const Color primary = Color.fromARGB(224, 138, 229, 96);
+  static const Color primaryDark = Color.fromARGB(255, 116, 203, 79);
   static const Color primaryLight = Color.fromARGB(255, 234, 254, 221);
 
   // Status colors
