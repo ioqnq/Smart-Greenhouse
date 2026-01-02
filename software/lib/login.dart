@@ -83,7 +83,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 );
               },
-              child: const Text("Don't have an account? Register"),
+              child: const Text("Don't have an account? Register", style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w100,
+                    color: AppColors.textGrey,
+                  ),
+              ),
             ),
           ],
         ),

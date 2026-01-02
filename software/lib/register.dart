@@ -84,7 +84,12 @@ class _RegisterPageState extends State<RegisterPage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Already have an account? Login'),
+              child: const Text('Already have an account? Login', style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w100,
+                    color: AppColors.textGrey,
+                  ),
+              ),
             ),
           ],
         ),
