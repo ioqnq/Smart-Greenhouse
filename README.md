@@ -10,7 +10,7 @@ TBA
 TBA
 
 ## 👤 Authors
-| <img src="TBA" width="48"> | <img src="TBA" width="48"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
+| <img src="TBA" width="48"> | <img src="https://avatars.githubusercontent.com/u/183308975?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
 | ------------- | ------------- | ------------- |
 | Mihon Corina  | Nedelcu Andreea  | Nedelcu Ioana  |
 | _roles TBA_  | _roles TBA_  | _roles TBA_ |
