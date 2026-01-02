@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'constants/colors.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
+
+  double imageSize(BuildContext context) {
+    if (kIsWeb) return 400;
+    if (Platform.isAndroid || Platform.isIOS) return 250;
+    return 400; // desktop
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +25,7 @@ class WelcomePage extends StatelessWidget {
             // 🌱 Imaginea
             Image.asset(
               'images/greenhouse.png',
-              width: 250,
+              width: imageSize(context),
             ),
 
             const SizedBox(height: 40),
