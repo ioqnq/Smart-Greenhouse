@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'constants/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -52,31 +53,62 @@ class _RegisterPageState extends State<RegisterPage> {
               foregroundColor: AppColors.textLight,    
               ),
               onPressed: () async {
-                try {
-                  await FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
-                    email: emailController.text.trim(),
-                    password: passwordController.text.trim(),
-                  );
+              try {
+                final credential = await FirebaseAuth.instance
+                    .createUserWithEmailAndPassword(
+                  email: emailController.text.trim(),
+                  password: passwordController.text.trim(),
+                );
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Account created!")),
-                  );
+                final uid = credential.user!.uid;
 
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const NavigationExample(),
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .set({
+                  'profile': {
+                    'email': emailController.text.trim(),
+                    'createdAt': FieldValue.serverTimestamp(),
+                  },
+                  'greenhouse': {
+                    'Temperature': {
+                      'value': 28,
+                      'status': 'Good',
+                      'last': 2,
+                    },
+                    'Humid': {
+                      'value': 30,
+                      'status': 'Insufficient',
+                      'last': 2,
+                    },
+                    'history': Map.fromEntries(
+                      List.generate(24, (i) {
+                        final hour = i.toString().padLeft(2, '0');
+                        return MapEntry(hour, {
+                          'temp': 0,
+                          'humid': 0,
+                        });
+                      }),
                     ),
-                  );
-                } on FirebaseAuthException catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.message ?? 'Registration failed'),
-                    ),
-                  );
-                }
-              },
+                  },
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Account created!")),
+                );
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NavigationExample(),
+                  ),
+                );
+              } on FirebaseAuthException catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(e.message ?? 'Registration failed')),
+                );
+              }
+            },
               child: const Text('Create account'),
             ),
 
