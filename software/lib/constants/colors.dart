@@ -16,7 +16,7 @@ class AppColors {
 
   // UI background colors
   static const Color background = Color(0xFFF5F5F5);
-  static const Color cardBackground = Colors.white;
+  static const Color cardBackground = Color.fromARGB(255, 242, 244, 241);
 
   // Text colors
   static const Color textDark = Color(0xFF2E2E2E);
