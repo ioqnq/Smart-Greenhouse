@@ -73,13 +73,17 @@ class _RegisterPageState extends State<RegisterPage> {
                   'greenhouse': {
                     'Temperature': {
                       'value': 28,
-                      'status': 'Good',
+                      'targetTemp': 25,
+                      'fanTimeInt': 2,
                       'last': 2,
+                      'auto': 'off',
                     },
                     'Humid': {
                       'value': 30,
-                      'status': 'Insufficient',
+                      'targetHumid': 30,
+                      'waterTimeInt': 2,
                       'last': 2,
+                      'auto': 'off',
                     },
                     'history': Map.fromEntries(
                       List.generate(24, (i) {

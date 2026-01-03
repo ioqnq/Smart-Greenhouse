@@ -14,6 +14,22 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int _currentGraphIndex = 0;
 
+  String getStatus({
+  required double value,
+  required double targetValue,
+  double tolerance = 2,
+  }) {
+    final diff = (value - targetValue).abs();
+
+    if (diff <= tolerance) {
+      return 'Good';
+    } else if (diff <= tolerance * 2) {
+      return 'Warning';
+    } else {
+      return 'Insufficient';
+    }
+  }
+
   // map firebase data to chart
   List<FlSpot> historyToChart(
   Map<String, dynamic> hourlyHistory,
@@ -62,6 +78,22 @@ class _DashboardState extends State<Dashboard> {
         final tempSpots = historyToChart(history, 'temp');
         final humidSpots = historyToChart(history, 'humid');
 
+        final double tempValue = (temp['value'] as num).toDouble();
+        final double tempTarget = (temp['targetTemp'] as num).toDouble();
+
+        final double humidValue = (humid['value'] as num).toDouble();
+        final double humidTarget = (humid['targetHumid'] as num).toDouble();
+
+        final String tempStatus = getStatus(
+          value: tempValue,
+          targetValue: tempTarget,
+        );
+
+        final String humidStatus = getStatus(
+          value: humidValue,
+          targetValue: humidTarget,
+        );
+
         return Column(
           children: [
             // status tiles
@@ -77,19 +109,19 @@ class _DashboardState extends State<Dashboard> {
                     name: 'Temperature',
                     borderColor: AppColors.temperature,
                     amount: '${temp['value']}°C',
-                    status: temp['status'],
+                    status: tempStatus,
                     nameIcon: Icons.thermostat,
                     auto: '${temp['auto']}',
-                    statusExtraText: 'Last watered: ${temp['last']}h ago',
+                    statusExtraText: 'Last fanned: ${temp['last']}h ago',
                   ),
                   StatusTile(
                     name: 'Humidity',
                     borderColor: AppColors.humidity,
                     amount: '${humid['value']}%',
-                    status: humid['status'],
+                    status: humidStatus,
                     nameIcon: Icons.water_drop,
                     auto: '${humid['auto']}',
-                    statusExtraText: 'Last fanned: ${humid['last']}h ago',
+                    statusExtraText: 'Last watered: ${humid['last']}h ago',
                   ),
                 ],
               ),
