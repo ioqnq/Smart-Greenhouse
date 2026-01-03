@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'constants/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -12,91 +14,169 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int _currentGraphIndex = 0;
 
+  String getStatus({
+  required double value,
+  required double targetValue,
+  double tolerance = 2,
+  }) {
+    final diff = (value - targetValue).abs();
+
+    if (diff <= tolerance) {
+      return 'Good';
+    } else if (diff <= tolerance * 2) {
+      return 'Warning';
+    } else {
+      return 'Insufficient';
+    }
+  }
+
+  // map firebase data to chart
+  List<FlSpot> historyToChart(
+  Map<String, dynamic> hourlyHistory,
+  String stat,
+  ) {
+    final List<FlSpot> chartPoints = [];
+    final sortedHours = hourlyHistory.keys.toList()..sort();
+
+    for (final hourKey in sortedHours) {
+      final int hour = int.parse(hourKey);
+      final Map<String, dynamic> statValuesAtHour = hourlyHistory[hourKey];
+      final double value = (statValuesAtHour[stat] as num).toDouble();
+
+      chartPoints.add(FlSpot(hour.toDouble(), value));
+    }
+
+    return chartPoints;
+  }
+
+
   // dummy values
-  final List<FlSpot> tempData = List.generate(24, (i) => FlSpot(i.toDouble(), 15 + (i % 14).toDouble()));
-  final List<FlSpot> humidityData = List.generate(24, (i) => FlSpot(i.toDouble(), 30 + (i % 50).toDouble()));
+  //final List<FlSpot> tempData = List.generate(24, (i) => FlSpot(i.toDouble(), 15 + (i % 14).toDouble()));
+  //final List<FlSpot> humidityData = List.generate(24, (i) => FlSpot(i.toDouble(), 30 + (i % 50).toDouble()));
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: GridView.extent(
-            padding: const EdgeInsets.all(16),
-            maxCrossAxisExtent: 300,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: 1.5,
-            children: const [
-              StatusTile(
-                name: 'Temperature',
-                borderColor: AppColors.temperature,
-                amount: '28°C',
-                status: 'Good',
-                nameIcon: Icons.thermostat,
-                statusExtraText: 'Last watered: 2h ago',
-                auto: 'on',
-              ),
-              StatusTile(
-                name: 'Humidity',
-                borderColor: AppColors.humidity,
-                amount: '30%',
-                status: 'Insufficient',
-                nameIcon: Icons.water_drop,
-                statusExtraText: 'Last fanned: 2h ago',
-                auto: 'off',
-              ),
-            ],
-          ),
-        ),
+    final uid = FirebaseAuth.instance.currentUser!.uid;
 
-        const SizedBox(height: 3),
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-        /// graph
-        SizedBox(
-          height: 350,
-          child: PageView(
-            onPageChanged: (index) => setState(() => _currentGraphIndex = index),
-            children: [
-              GraphChart(
-                title: 'Temperature - Last 24h',
-                icon: Icons.thermostat,
-                color: AppColors.temperature,
-                spots: tempData,
-                maxY: 28,
-              ),
-              GraphChart(
-                title: 'Humidity - Last 24h',
-                icon: Icons.water_drop,
-                color: AppColors.humidity,
-                spots: humidityData,
-                maxY: 100,
-              ),
-            ],
-          ),
-        ),
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final greenhouse = data['greenhouse'];
 
-        /// dots indicator
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(2, (index) {
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              width: _currentGraphIndex == index ? 12 : 8,
-              height: _currentGraphIndex == index ? 12 : 8,
-              decoration: BoxDecoration(
-                color: _currentGraphIndex == index ? Colors.black : Colors.grey,
-                shape: BoxShape.circle,
+        final temp = greenhouse['Temperature'];
+        final humid = greenhouse['Humid'];
+        final history = greenhouse['history'];
+
+        final tempSpots = historyToChart(history, 'temp');
+        final humidSpots = historyToChart(history, 'humid');
+
+        final double tempValue = (temp['value'] as num).toDouble();
+        final double tempTarget = (temp['targetTemp'] as num).toDouble();
+
+        final double humidValue = (humid['value'] as num).toDouble();
+        final double humidTarget = (humid['targetHumid'] as num).toDouble();
+
+        final String tempStatus = getStatus(
+          value: tempValue,
+          targetValue: tempTarget,
+        );
+
+        final String humidStatus = getStatus(
+          value: humidValue,
+          targetValue: humidTarget,
+        );
+
+        return Column(
+          children: [
+            // status tiles
+            Expanded(
+              child: GridView.extent(
+                padding: const EdgeInsets.all(16),
+                maxCrossAxisExtent: 300,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 1.5,
+                children: [
+                  StatusTile(
+                    name: 'Temperature',
+                    borderColor: AppColors.temperature,
+                    amount: '${temp['value']}°C',
+                    status: tempStatus,
+                    nameIcon: Icons.thermostat,
+                    auto: '${temp['auto']}',
+                    statusExtraText: 'Last fanned: ${temp['last']}h ago',
+                  ),
+                  StatusTile(
+                    name: 'Humidity',
+                    borderColor: AppColors.humidity,
+                    amount: '${humid['value']}%',
+                    status: humidStatus,
+                    nameIcon: Icons.water_drop,
+                    auto: '${humid['auto']}',
+                    statusExtraText: 'Last watered: ${humid['last']}h ago',
+                  ),
+                ],
               ),
-            );
-          }),
-        ),
-      ],
+            ),
+
+            const SizedBox(height: 3),
+
+            // graph
+            SizedBox(
+              height: 350,
+              child: PageView(
+                onPageChanged: (i) => setState(() => _currentGraphIndex = i),
+                children: [
+                  GraphChart(
+                    title: 'Temperature - Last 24h',
+                    icon: Icons.thermostat,
+                    color: AppColors.temperature,
+                    spots: tempSpots,
+                    maxY: 28,
+                  ),
+                  GraphChart(
+                    title: 'Humidity - Last 24h',
+                    icon: Icons.water_drop,
+                    color: AppColors.humidity,
+                    spots: humidSpots,
+                    maxY: 100,
+                  ),
+                ],
+              ),
+            ),
+
+            // graph select
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(2, (index) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  width: _currentGraphIndex == index ? 12 : 8,
+                  height: _currentGraphIndex == index ? 12 : 8,
+                  decoration: BoxDecoration(
+                    color: _currentGraphIndex == index ? Colors.black : Colors.grey,
+                    shape: BoxShape.circle,
+                  ),
+                );
+              }),
+            ),
+          ],
+        );
+      },
     );
   }
+
 }
 
-/// graph impl
+// graph impl
 class GraphChart extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -126,7 +206,7 @@ class GraphChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// title row with icon
+          // title row with icon
           Row(
             children: [
               Icon(icon, color: color),
@@ -139,7 +219,7 @@ class GraphChart extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          /// graph
+          // graph
           Expanded(
             child: LineChart(
               LineChartData(
@@ -271,7 +351,7 @@ class StatusTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// 1st row
+          // 1st row
           Row(
             children: [
               Icon(nameIcon, color: borderColor),
@@ -308,7 +388,7 @@ class StatusTile extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          /// 2nd row
+          // 2nd row
           Row(
             children: [
               Expanded(
@@ -327,7 +407,7 @@ class StatusTile extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          /// 3rd row
+          // 3rd row
           Row(
             children: [
               Container(
