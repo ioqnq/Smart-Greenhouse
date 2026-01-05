@@ -15,10 +15,12 @@ USER_UID = secrets.USER_UID
 
 # sensor config (dry and wet vals currently inaccurate)
 SENSOR_PIN = 26        # GP26 (ADC0)
+TEMP_PIN = 27          # GP27 (ADC1)
 DRY_VAL = 65535
 WET_VAL = 20000
 
 adc = ADC(Pin(SENSOR_PIN))
+adc_temp = ADC(Pin(TEMP_PIN))
 led = Pin("LED", Pin.OUT)
 
 def connect_wifi():
@@ -44,8 +46,17 @@ def get_humidity_percent():
         percent = (DRY_VAL - raw) / (DRY_VAL - WET_VAL) * 100
         return round(percent, 1) # 1. decimal
 
-def update_firestore(humid_val):
-    url = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/users/{USER_UID}?updateMask.fieldPaths=greenhouse.Humid.value"
+def get_temperature():
+    raw = adc_temp.read_u16()
+    
+    # convert to voltage (3.3V) then to celsius (10mV/C)
+    voltage = raw * (3.3 / 65535)
+    temp = voltage / 0.01 
+    
+    return round(temp, 1)
+
+def update_firestore(humid_val, temp_val):
+    url = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/users/{USER_UID}?updateMask.fieldPaths=greenhouse.Humid.value&updateMask.fieldPaths=greenhouse.Temperature.value"
     
     payload = {
         "fields": {
@@ -56,6 +67,13 @@ def update_firestore(humid_val):
                             "mapValue": {
                                 "fields": {
                                     "value": { "doubleValue": humid_val }
+                                }
+                            }
+                        },
+                        "Temperature": {
+                            "mapValue": {
+                                "fields": {
+                                    "value": { "doubleValue": temp_val }
                                 }
                             }
                         }
@@ -69,7 +87,7 @@ def update_firestore(humid_val):
         # patch to update existing document
         response = urequests.patch(url, json=payload)
         if response.status_code == 200:
-            print(f"Updated DB: {humid_val}%")
+            print(f"Updated DB: {humid_val}% | {temp_val}C")
         else:
             print(f"Error {response.status_code}: {response.text}")
         response.close()
@@ -82,7 +100,8 @@ connect_wifi()
 print("Starting Sensor Loop...")
 while True:
     current_humid = get_humidity_percent()
+    current_temp = get_temperature()
     
-    update_firestore(current_humid)
+    update_firestore(current_humid, current_temp)
     
     time.sleep(3)
