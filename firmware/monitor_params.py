@@ -2,6 +2,7 @@ import network
 import time
 import urequests
 import json
+import ntptime
 from machine import ADC, Pin
 import secrets
 
@@ -12,6 +13,9 @@ WIFI_PASS = secrets.WIFI_PASS
 PROJECT_ID = secrets.PROJECT_ID
 
 USER_UID = secrets.USER_UID
+
+# timezone offset (eest = +3)
+TZ_OFFSET = 3
 
 # sensor config (dry and wet vals currently inaccurate)
 SENSOR_PIN = 26        # GP26 (ADC0)
@@ -34,6 +38,12 @@ def connect_wifi():
         print(".", end="")
     print("\nConnected! IP:", wlan.ifconfig()[0])
     led.on()
+    
+    # sync time
+    try:
+        ntptime.settime()
+    except:
+        pass
 
 def get_humidity_percent():
     raw = adc.read_u16()
@@ -44,7 +54,7 @@ def get_humidity_percent():
         return 100
     else:
         percent = (DRY_VAL - raw) / (DRY_VAL - WET_VAL) * 100
-        return round(percent, 1) # 1. decimal
+        return round(percent, 1) # 1 decimal
 
 def get_temperature():
     raw = adc_temp.read_u16()
@@ -55,25 +65,52 @@ def get_temperature():
     
     return round(temp, 1)
 
+def get_hour_string():
+
+    now = time.time() + (TZ_OFFSET * 3600)
+
+    hour = time.localtime(now)[3]
+    return str(hour)
+
 def update_firestore(humid_val, temp_val):
-    url = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/users/{USER_UID}?updateMask.fieldPaths=greenhouse.Humid.value&updateMask.fieldPaths=greenhouse.Temperature.value"
+    hour_key = get_hour_string()
+    
+    masks = [
+        "greenhouse.Humid.value",
+        "greenhouse.Temperature.value",
+        f"greenhouse.history.`{hour_key}`.humid",
+        f"greenhouse.history.`{hour_key}`.temp"
+    ]
+    
+    # join masks for url
+    mask_query = "&".join([f"updateMask.fieldPaths={m}" for m in masks])
+    
+    url = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/users/{USER_UID}?{mask_query}"
     
     payload = {
         "fields": {
             "greenhouse": {
                 "mapValue": {
                     "fields": {
+                        # live values
                         "Humid": {
-                            "mapValue": {
-                                "fields": {
-                                    "value": { "doubleValue": humid_val }
-                                }
-                            }
+                            "mapValue": {"fields": {"value": { "doubleValue": humid_val }}}
                         },
                         "Temperature": {
+                            "mapValue": {"fields": {"value": { "doubleValue": temp_val }}}
+                        },
+                        # history values
+                        "history": {
                             "mapValue": {
                                 "fields": {
-                                    "value": { "doubleValue": temp_val }
+                                    hour_key: {
+                                        "mapValue": {
+                                            "fields": {
+                                                "humid": { "doubleValue": humid_val },
+                                                "temp":  { "doubleValue": temp_val }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -87,7 +124,7 @@ def update_firestore(humid_val, temp_val):
         # patch to update existing document
         response = urequests.patch(url, json=payload)
         if response.status_code == 200:
-            print(f"Updated DB: {humid_val}% | {temp_val}C")
+            print(f"Updated DB: {humid_val}% | {temp_val}C | Hr: {hour_key}")
         else:
             print(f"Error {response.status_code}: {response.text}")
         response.close()
