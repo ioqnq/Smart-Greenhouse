@@ -122,6 +122,17 @@ class _DashboardState extends State<Dashboard> {
                     nameIcon: Icons.water_drop,
                     auto: '${humid['auto']}',
                     statusExtraText: 'Last watered: ${humid['last']}h ago',
+                    onAmountPressed: () async {
+                      final uid = FirebaseAuth.instance.currentUser!.uid;
+                      // Set the command to "WATER"
+                      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+                        'greenhouse': {
+                          'Humid': {
+                            'command': true // <--- This triggers the Pico
+                          }
+                        }
+                      }, SetOptions(merge: true));      
+                    }              
                   ),
                 ],
               ),
