@@ -5,13 +5,15 @@ import json
 import ntptime
 from machine import ADC, Pin
 import secrets
+import rp2
 
 # --- config
 WIFI_SSID = secrets.WIFI_SSID
 WIFI_PASS = secrets.WIFI_PASS
 PROJECT_ID = secrets.PROJECT_ID
 USER_UID = secrets.USER_UID
-TZ_OFFSET = 3
+TZ_OFFSET = 0
+rp2.country('RO')
 
 # sensor config
 SENSOR_PIN = 26
@@ -38,18 +40,32 @@ def relay_off():
     print(">>> RELAY OFF")
 
 def connect_wifi():
+    rp2.country('RO') 
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
+    wlan.disconnect() 
+    
+    print(f"Connecting to {WIFI_SSID}...")
     wlan.connect(WIFI_SSID, WIFI_PASS)
-    print("Connecting to WiFi...", end="")
-    while not wlan.isconnected():
+    
+    max_wait = 15
+    while max_wait > 0:
+        if wlan.status() < 0 or wlan.status() >= 3:
+            break
+        max_wait -= 1
+        print(f"Waiting... Status: {wlan.status()}")
         led.toggle()
-        time.sleep(0.2)
-        print(".", end="")
-    print("\nConnected! IP:", wlan.ifconfig()[0])
-    led.on()
-    try: ntptime.settime()
-    except: pass
+        time.sleep(1)
+
+    if wlan.status() != 3:
+        led.off()
+        print("\nConnection Failed!")
+        raise RuntimeError('Wi-Fi connection failed')
+    else:
+        print("\nConnected! IP:", wlan.ifconfig()[0])
+        led.on()
+        try: ntptime.settime()
+        except: pass
 
 def get_humidity_percent():
     raw = adc.read_u16()
@@ -69,6 +85,9 @@ def get_hour_string():
     now = time.time() + (TZ_OFFSET * 3600)
     hour = time.localtime(now)[3]
     return str(hour)
+
+def get_unix_timestamp():
+    return time.time()
 
 def check_and_clear_command():
     # read command from db
@@ -90,8 +109,11 @@ def check_and_clear_command():
                     time.sleep(3)  # water for 3 seconds
                     relay_off()
                     
-                    # reset to False
-                    patch_url = f"{url}?updateMask.fieldPaths=greenhouse.Humid.command"
+                    # 1. Get current timestamp
+                    current_unix_time = get_unix_timestamp()
+                    
+                    # 2. Reset command AND write timestamp
+                    patch_url = f"{url}?updateMask.fieldPaths=greenhouse.Humid.command&updateMask.fieldPaths=greenhouse.Humid.lastWatering"
                     payload = {
                         "fields": {
                             "greenhouse": {
@@ -100,7 +122,9 @@ def check_and_clear_command():
                                         "Humid": {
                                             "mapValue": {
                                                 "fields": {
-                                                    "command": { "booleanValue": False }
+                                                    "command": { "booleanValue": False },
+                                                    # Firestore REST API requires integerValue to be a STRING
+                                                    "lastWatering": { "integerValue": str(current_unix_time) }
                                                 }
                                             }
                                         }
@@ -110,12 +134,12 @@ def check_and_clear_command():
                         }
                     }
                     urequests.patch(patch_url, json=payload).close()
-                    print("Command reset to False.")
+                    print(f"Command reset. Timestamp saved: {current_unix_time}")
             except Exception as e:
-                pass 
+                print("Parsing Logic Error:", e)
         res.close()
     except Exception as e:
-        print("Check Command Error:", e)
+        print("Check Command Network Error:", e)
 
 def update_firestore(humid_val, temp_val):
     hour_key = get_hour_string()

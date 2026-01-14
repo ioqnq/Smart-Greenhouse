@@ -4,6 +4,34 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+String getTimeAgo(dynamic timestamp) {
+  if (timestamp == null) return "Unknown";
+  
+  // Convert Firestore number to Dart int
+  int seconds = 0;
+  if (timestamp is int) {
+    seconds = timestamp;
+  } else if (timestamp is String) {
+    // Fallback if saved as string
+    seconds = int.tryParse(timestamp) ?? 0;
+  }
+  
+  if (seconds == 0) return "Never";
+
+  final wateringTime = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+  final diff = DateTime.now().difference(wateringTime);
+
+  if (diff.inSeconds < 30) {
+    return "Just now";
+  } else if (diff.inMinutes < 60) {
+    return "${diff.inMinutes}m ago";
+  } else if (diff.inHours < 24) {
+    return "${diff.inHours}h ago";
+  } else {
+    return "${diff.inDays}d ago";
+  }
+}
+
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
@@ -39,7 +67,9 @@ class _DashboardState extends State<Dashboard> {
     final sortedHours = hourlyHistory.keys.toList()..sort();
 
     for (final hourKey in sortedHours) {
-      final int hour = int.parse(hourKey);
+      final cleanKey = hourKey.replaceAll('`', '');
+      final int hour = int.tryParse(cleanKey) ?? 0;
+
       final Map<String, dynamic> statValuesAtHour = hourlyHistory[hourKey];
       final double value = (statValuesAtHour[stat] as num).toDouble();
 
@@ -94,6 +124,9 @@ class _DashboardState extends State<Dashboard> {
           targetValue: humidTarget,
         );
 
+        final lastWateringTimestamp = humid['lastWatering'];
+        final String timeAgo = getTimeAgo(lastWateringTimestamp);
+
         return Column(
           children: [
             // status tiles
@@ -121,7 +154,7 @@ class _DashboardState extends State<Dashboard> {
                     status: humidStatus,
                     nameIcon: Icons.water_drop,
                     auto: '${humid['auto']}',
-                    statusExtraText: 'Last watered: ${humid['last']}h ago',
+                    statusExtraText: 'Watered: $timeAgo',
                     onAmountPressed: () async {
                       final uid = FirebaseAuth.instance.currentUser!.uid;
                       // Set the command to "WATER"
