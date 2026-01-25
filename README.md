@@ -6,18 +6,15 @@ A smart greenhouse IOT project consisting of a watering and fanning system done 
 ## 🛠️ Features
 TBA
 
-## 📥  Install
-TBA
-
 ## 👤 Authors
-| <img src="TBA" width="48"> | <img src="https://avatars.githubusercontent.com/u/183308975?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
+| <img src="https://avatars.githubusercontent.com/u/114288029?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/183308975?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
 | ------------- | ------------- | ------------- |
-| Mihon Corina  | Nedelcu Andreea  | Nedelcu Ioana  |
-| _roles TBA_  | _roles TBA_  | _roles TBA_ |
+| **Mihon Corina**  | **Nedelcu Andreea**  | **Nedelcu Ioana**  |
+| _- config page <br> - authentification <br> - welcome page <br> - physical greenhouse design <br> - greenhouse assembly_  | _- embedded software <br> - circuit design <br> - UI/UX prototyping <br> - README author (hi!)_ | _- dashboard <br> - UI/UX prototyping <br> - greenhouse assembly_ |
 
 ## 📜 License
-TBA
+Under exclusive copyright
 
-## 📖 Bibliography
+## 📖 References
 - [How to Use VSCode with Raspberry Pi Pico W and MicroPython](https://www.youtube.com/watch?v=O6lkYTfcMEg) by Shilleh
 on Youtube
