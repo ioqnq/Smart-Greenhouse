@@ -7,12 +7,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 String getTimeAgo(dynamic timestamp) {
   if (timestamp == null) return "Unknown";
   
-  // Convert Firestore number to Dart int
+  // convert firestore number to dart int
   int seconds = 0;
   if (timestamp is int) {
     seconds = timestamp;
   } else if (timestamp is String) {
-    // Fallback if saved as string
+    // fallback if saved as string
     seconds = int.tryParse(timestamp) ?? 0;
   }
   
@@ -21,7 +21,11 @@ String getTimeAgo(dynamic timestamp) {
   final wateringTime = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
   final diff = DateTime.now().difference(wateringTime);
 
-  if (diff.inSeconds < 30) {
+  if (diff.isNegative) {
+      return "Just now";
+  }
+
+  if (diff.inSeconds < 60) {
     return "Just now";
   } else if (diff.inMinutes < 60) {
     return "${diff.inMinutes}m ago";
@@ -54,11 +58,10 @@ class _DashboardState extends State<Dashboard> {
     } else if (diff <= tolerance * 2) {
       return 'Warning';
     } else {
-      return 'Insufficient';
+      return 'Bad';
     }
   }
 
-  // map firebase data to chart
   List<FlSpot> historyToChart(
   Map<String, dynamic> hourlyHistory,
   String stat,
@@ -78,11 +81,6 @@ class _DashboardState extends State<Dashboard> {
 
     return chartPoints;
   }
-
-
-  // dummy values
-  //final List<FlSpot> tempData = List.generate(24, (i) => FlSpot(i.toDouble(), 15 + (i % 14).toDouble()));
-  //final List<FlSpot> humidityData = List.generate(24, (i) => FlSpot(i.toDouble(), 30 + (i % 50).toDouble()));
 
   @override
   Widget build(BuildContext context) {
@@ -124,8 +122,12 @@ class _DashboardState extends State<Dashboard> {
           targetValue: humidTarget,
         );
 
+        // read timestamps
         final lastWateringTimestamp = humid['lastWatering'];
-        final String timeAgo = getTimeAgo(lastWateringTimestamp);
+        final lastFanningTimestamp = temp['lastFanning'];
+        
+        final String wateredTimeAgo = getTimeAgo(lastWateringTimestamp);
+        final String fannedTimeAgo = getTimeAgo(lastFanningTimestamp);
 
         return Column(
           children: [
@@ -145,7 +147,18 @@ class _DashboardState extends State<Dashboard> {
                     status: tempStatus,
                     nameIcon: Icons.thermostat,
                     auto: '${temp['auto']}',
-                    statusExtraText: 'Last fanned: ${temp['last']}h ago',
+                    statusExtraText: 'Fanned: $fannedTimeAgo',
+                    onAmountPressed: () async {
+                      final uid = FirebaseAuth.instance.currentUser!.uid;
+                      // trigger fan command
+                      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+                        'greenhouse': {
+                          'Temperature': {
+                            'command': true 
+                          }
+                        }
+                      }, SetOptions(merge: true));      
+                    }
                   ),
                   StatusTile(
                     name: 'Humidity',
@@ -154,14 +167,14 @@ class _DashboardState extends State<Dashboard> {
                     status: humidStatus,
                     nameIcon: Icons.water_drop,
                     auto: '${humid['auto']}',
-                    statusExtraText: 'Watered: $timeAgo',
+                    statusExtraText: 'Watered: $wateredTimeAgo',
                     onAmountPressed: () async {
                       final uid = FirebaseAuth.instance.currentUser!.uid;
-                      // Set the command to "WATER"
+                      // trigger water command
                       await FirebaseFirestore.instance.collection('users').doc(uid).set({
                         'greenhouse': {
                           'Humid': {
-                            'command': true // <--- This triggers the Pico
+                            'command': true 
                           }
                         }
                       }, SetOptions(merge: true));      
@@ -170,7 +183,7 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
-
+                        
             const SizedBox(height: 3),
 
             // graph
@@ -220,7 +233,6 @@ class _DashboardState extends State<Dashboard> {
 
 }
 
-// graph impl
 class GraphChart extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -250,7 +262,6 @@ class GraphChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // title row with icon
           Row(
             children: [
               Icon(icon, color: color),
@@ -262,8 +273,6 @@ class GraphChart extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-
-          // graph
           Expanded(
             child: LineChart(
               LineChartData(
@@ -282,10 +291,10 @@ class GraphChart extends StatelessWidget {
                 ),
                 titlesData: FlTitlesData(
                   topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false), // hide top values
+                    sideTitles: SideTitles(showTitles: false), 
                   ),
                   rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false), // hide right values
+                    sideTitles: SideTitles(showTitles: false), 
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
@@ -315,7 +324,6 @@ class GraphChart extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 lineBarsData: [
                   LineChartBarData(
                     spots: spots,
@@ -326,7 +334,6 @@ class GraphChart extends StatelessWidget {
                   ),
                 ],
               )
-
             ),
           ),
         ],
@@ -341,7 +348,6 @@ class StatusTile extends StatelessWidget {
   final String amount;
   final String status;
   final String auto;
-
   final IconData nameIcon;
   final VoidCallback? onAmountPressed;
   final IconData amountButtonIcon = Icons.play_arrow;
@@ -361,25 +367,18 @@ class StatusTile extends StatelessWidget {
 
   Color get statusColor {
     switch (status.toLowerCase()) {
-      case 'good':
-        return AppColors.success;
-      case 'insufficient':
-        return AppColors.danger;
-      case 'warning':
-        return AppColors.warning;
-      default:
-        return Colors.grey;
+      case 'good': return AppColors.success;
+      case 'bad': return AppColors.danger;
+      case 'warning': return AppColors.warning;
+      default: return Colors.grey;
     }
   }
 
   Color get autoColor {
     switch (auto.toLowerCase()) {
-      case 'on':
-        return AppColors.danger;
-      case 'off':
-        return Colors.grey;
-      default:
-        return Colors.grey;
+      case 'on': return AppColors.danger;
+      case 'off': return Colors.grey;
+      default: return Colors.grey;
     }
   }
 
@@ -395,7 +394,6 @@ class StatusTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1st row
           Row(
             children: [
               Icon(nameIcon, color: borderColor),
@@ -429,10 +427,7 @@ class StatusTile extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // 2nd row
           Row(
             children: [
               Expanded(
@@ -448,10 +443,7 @@ class StatusTile extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
-          // 3rd row
           Row(
             children: [
               Container(
