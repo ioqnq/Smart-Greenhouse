@@ -5,10 +5,13 @@ A smart greenhouse IOT project consisting of a watering and fanning system done 
 
 ## 🛠️ Features
 
-Demo video!
+Check out the demo video below!
 
-![You Tube](https://youtu.be/z10rGKDEmPQ)
-
+<p align="left">
+  <a href="https://www.youtube.com/watch?v=z10rGKDEmPQ">
+    <img width="640" height="360" alt="GHThumbnail" src="https://github.com/user-attachments/assets/a7ad4ec5-0253-4f81-a4c3-d2ec174dd6cc" />
+  </a>
+</p>
 
 
 ## 👤 Authors
