@@ -27,7 +27,7 @@ Check out the demo video below!
 | <img src="https://avatars.githubusercontent.com/u/114288029?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/183308975?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
 | ------------- | ------------- | ------------- |
 | **Mihon Corina**  | **Nedelcu Andreea**  | **Nedelcu Ioana**  |
-| _- config page <br> - authentification <br> - welcome page <br> - physical greenhouse design <br> - greenhouse assembly_  | _- embedded software <br> - circuit design <br> - UI/UX prototyping <br> - README author_ | _- dashboard <br> - database design <br> - UI/UX prototyping <br> - demo video <br> - greenhouse assembly <br> - README author_ |
+| _- config page <br> - authentification <br> - welcome page <br> - physical greenhouse design <br> - greenhouse assembly_  | _- embedded software <br> - circuit design <br> - UI/UX prototyping <br> - README author_ | _- dashboard <br> - database design <br> - UI/UX prototyping <br> - greenhouse assembly <br> - demo video <br> - README author_ |
 
 ## 📜 License
 Under exclusive copyright
