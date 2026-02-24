@@ -13,12 +13,23 @@ Check out the demo video below!
   </a>
 </p>
 
+- Toggle automatic watering / fanning 🤖
+- Set the automatic tasks' frequency in settings ⚙️
+- Set target values 🎯
+- Manual watering / fanning upon button press 👇
+- Current greenhouse soil humidity (percentage) / air temperature 📺
+- Values history for both soil humidity and air temperature 📈
+- Authentification 🔐
+
+### 💡 Possible upgrades:
+- QR code handshake to connect greenhouse to account (Add Device function) just like real IOT products
+- Image-recognition for parameter recommendations (watering frequency, ideal temperature & humidity value for recognised plant species)
 
 ## 👤 Authors
 | <img src="https://avatars.githubusercontent.com/u/114288029?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/183308975?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
 | ------------- | ------------- | ------------- |
 | **Mihon Corina**  | **Nedelcu Andreea**  | **Nedelcu Ioana**  |
-| _- config page <br> - authentification <br> - welcome page <br> - physical greenhouse design <br> - greenhouse assembly_  | _- embedded software <br> - circuit design <br> - UI/UX prototyping <br> - README author (hi!)_ | _- dashboard <br> - UI/UX prototyping <br> - greenhouse assembly_ |
+| _- config page <br> - authentification <br> - welcome page <br> - physical greenhouse design <br> - greenhouse assembly_  | _- embedded software <br> - circuit design <br> - UI/UX prototyping <br> - README author (hi!)_ | _- dashboard <br> - database design <br> - UI/UX prototyping <br> - demo video <br> - greenhouse assembly_ |
 
 ## 📜 License
 Under exclusive copyright
