@@ -22,12 +22,13 @@ Check out the demo video below!
 ### 💡 Potential improvements:
 - QR code handshake to connect greenhouse to account (Add Device function) just like real IOT products
 - Image Recognition for parameter recommendations (watering frequency, ideal temperature & humidity value for recognised plant species)
+- Rewrite firmware code in Rust for memory safety (removing the need for garbage collection in favor of rust's ownership system + RAM usage optimization)
 
 ## 👤 Authors
 | <img src="https://avatars.githubusercontent.com/u/114288029?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/183308975?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/182642157?v=4" width="100">  |
 | ------------- | ------------- | ------------- |
 | **Mihon Corina**  | **Nedelcu Andreea**  | **Nedelcu Ioana**  |
-| _- config page <br> - authentification <br> - welcome page <br> - physical greenhouse design <br> - greenhouse assembly_  | _- embedded software <br> - circuit design <br> - UI/UX prototyping <br> - README author_ | _- dashboard <br> - database design <br> - UI/UX prototyping <br> - greenhouse assembly <br> - demo video <br> - README author_ |
+| _- config page <br> - authentification <br> - welcome page <br> - physical greenhouse design <br> - greenhouse assembly_  | _- embedded software <br> - circuit design <br> - UI/UX prototyping <br> - README author_ | _- dashboard <br> - database design <br> - UI/UX prototyping <br> - greenhouse assembly <br> - demo video_ |
 
 ## 📜 License
 Under exclusive copyright
